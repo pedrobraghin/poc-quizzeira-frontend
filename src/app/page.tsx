@@ -3,18 +3,20 @@
 import { Button } from '@/components/ui/button';
 import config from '@/config';
 import api from '@/lib/api';
+import { User } from '@/types/user';
 import { AxiosError } from 'axios';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
 export default function Home() {
   const loginUrl = config.API_URL.concat('/auth/google');
-  const [user, setUser] = React.useState<any>();
+  const [user, setUser] = React.useState<User>();
   const [error, setError] = React.useState<string>();
 
   async function getMe() {
     try {
-      setError('')
+      setError(undefined)
       const response = await api.get('/users/me');
       setUser(response.data);
     } catch (e) {
@@ -30,12 +32,17 @@ export default function Home() {
       <Button>
         <Link href={loginUrl}>Entrar com o Google</Link>
       </Button>
+      <Button onClick={getMe}>Carregar meus dados</Button>
       <div>
-        <Button onClick={getMe}>Carregar meus dados</Button>
-        <pre>
-          {JSON.stringify(user, null, 2)}
-          {error}
-        </pre>
+        {user && (
+          <div className='flex flex-col gap-2 items-center justify-center'>
+            <Image src={user.picture} width={80} height={80} alt={`Foto de perfil de ${user.name}`} />
+            <span>Logado como {user.name}</span>
+          </div>
+        )}
+      </div>
+      <div>
+        <span>{error}</span>
       </div>
     </main>
   );
